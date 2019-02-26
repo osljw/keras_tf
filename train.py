@@ -16,11 +16,37 @@ def cal_auc(true, pred):
     auc = metrics.roc_auc_score(true, pred)
     return auc
 
+
 #column_names = ['uid', 'user_city', 'item_id', 'author_id', 'item_city', 'channel', 'finish', 'like', 'music_id', 'did', 'creat_time', 'video_duration']
 column_names = ["instance_id", 'uid', 'user_city', 'item_id', 'author_id', 'item_city', 'channel', 'finish', 'like', 'music_id', 'did', 'creat_time', 'video_duration',
         "words", "freqs",
         "gender", "beauty",
         "pos0", "pos1", "pos2", "pos3"]
+
+sparse_feature_list = [SingleFeat('uid', 80000),
+					   SingleFeat('user_city', 400),
+					   SingleFeat('item_id', 4200000),
+					   SingleFeat('author_id', 860000),
+					   SingleFeat('item_city', 470),
+					   SingleFeat('channel', 6),
+					   SingleFeat('music_id', 90000),
+					   SingleFeat('device', 80000),
+                       ]
+dense_feature_list = [SingleFeat('duration_time', 0)]
+
+batch_size = 4096
+def data_generate(file_name):
+    fd = open(file_name)
+    reader = pd.read_csv(fd, sep='\t', chunksize=batch_size, names=column_names, header=None)
+    while True:
+    	for chunk_df in reader:
+			X = [chunk_df[feat.name].values for feat in sparse_feature_list] + \ 
+			        [chunk_df[feat.name].values for feat in dense_feature_list]
+			Y = [chunk_df[target[0]].values, chunk_df[target[1]].values]
+    	    yield X, Y
+		fd.close()
+    	fd = open(file_name)
+    	reader = pd.read_csv(fd, sep='\t', chunksize=batch_size, names=column_names, header=None)
 
 if sys.argv[1] == 'track1':
     train_file = '../track1/final_track1_train.txt'
@@ -53,45 +79,45 @@ def auc(y_true, y_pred):
     return auc
 
 if __name__ == "__main__":
-    if ONLINE_FLAG:
-        data = pd.read_csv(train_file, sep='\t', names=column_names)
-        test_data = pd.read_csv(test_file, sep='\t', names=column_names)
-        train_size = data.shape[0]
-        data = data.append(test_data)
-    else:
-        #train_size = int(data.shape[0]*(1-VALIDATION_FRAC))
-        data = pd.read_csv(offline_train_file, sep='\t', names=column_names)
-        eval_data = pd.read_csv(offline_eval_file, sep='\t', names=column_names)
-        train_size = data.shape[0]
-        data = data.append(eval_data)
+    #if ONLINE_FLAG:
+    #    data = pd.read_csv(train_file, sep='\t', names=column_names)
+    #    test_data = pd.read_csv(test_file, sep='\t', names=column_names)
+    #    train_size = data.shape[0]
+    #    data = data.append(test_data)
+    #else:
+    #    #train_size = int(data.shape[0]*(1-VALIDATION_FRAC))
+    #    data = pd.read_csv(offline_train_file, sep='\t', names=column_names)
+    #    eval_data = pd.read_csv(offline_eval_file, sep='\t', names=column_names)
+    #    train_size = data.shape[0]
+    #    data = data.append(eval_data)
 
-    data[sparse_features] = data[sparse_features].fillna('-1', )
-    data[dense_features] = data[dense_features].fillna(0,)
+    #data[sparse_features] = data[sparse_features].fillna('-1', )
+    #data[dense_features] = data[dense_features].fillna(0,)
 
-    target = ['finish', 'like']
+    #target = ['finish', 'like']
 
-    for feat in sparse_features:
-        lbe = LabelEncoder()
-        data[feat] = lbe.fit_transform(data[feat])
-    mms = MinMaxScaler(feature_range=(0, 1))
-    data[dense_features] = mms.fit_transform(data[dense_features])
-    print("[main] dense_features:", data[dense_features])
+    #for feat in sparse_features:
+    #    lbe = LabelEncoder()
+    #    data[feat] = lbe.fit_transform(data[feat])
+    #mms = MinMaxScaler(feature_range=(0, 1))
+    #data[dense_features] = mms.fit_transform(data[dense_features])
+    #print("[main] dense_features:", data[dense_features])
 
-    sparse_feature_list = [SingleFeat(feat, data[feat].nunique())
-                           for feat in sparse_features]
-    dense_feature_list = [SingleFeat(feat, 0)
-                          for feat in dense_features]
+    #sparse_feature_list = [SingleFeat(feat, data[feat].nunique())
+    #                       for feat in sparse_features]
+    #dense_feature_list = [SingleFeat(feat, 0)
+    #                      for feat in dense_features]
 
-    train = data.iloc[:train_size]
-    test = data.iloc[train_size:]
+    #train = data.iloc[:train_size]
+    #test = data.iloc[train_size:]
 
-    train_model_input = [train[feat.name].values for feat in sparse_feature_list] + \
-        [train[feat.name].values for feat in dense_feature_list]
-    test_model_input = [test[feat.name].values for feat in sparse_feature_list] + \
-        [test[feat.name].values for feat in dense_feature_list]
+    #train_model_input = [train[feat.name].values for feat in sparse_feature_list] + \
+    #    [train[feat.name].values for feat in dense_feature_list]
+    #test_model_input = [test[feat.name].values for feat in sparse_feature_list] + \
+    #    [test[feat.name].values for feat in dense_feature_list]
 
-    train_labels = [train[target[0]].values, train[target[1]].values]
-    test_labels = [test[target[0]].values, test[target[1]].values]
+    #train_labels = [train[target[0]].values, train[target[1]].values]
+    #test_labels = [test[target[0]].values, test[target[1]].values]
 
     model = xDeepFM_MTL({"sparse": sparse_feature_list,
                          "dense": dense_feature_list})
@@ -102,7 +128,7 @@ if __name__ == "__main__":
 
     if ONLINE_FLAG:
         history = model.fit(train_model_input, train_labels,
-                            batch_size=4096, epochs=1, verbose=1)
+                            batch_size=batch_size, epochs=1, verbose=1)
         pred_ans = model.predict(test_model_input, batch_size=2**14)
 
     else:
@@ -110,7 +136,7 @@ if __name__ == "__main__":
         #                    batch_size=4096, epochs=1, verbose=1, 
         #                    validation_data=(test_model_input, test_labels))
         history = model.fit(train_model_input, train_labels,
-                            batch_size=4096, epochs=1, verbose=1)
+                            batch_size=batch_size, epochs=1, verbose=1)
         pred_ans = model.predict(test_model_input, batch_size=2**14)
         finish_auc = cal_auc(test['finish'], pred_ans[0])
         like_auc = cal_auc(test['like'], pred_ans[1])
