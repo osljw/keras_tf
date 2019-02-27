@@ -21,13 +21,15 @@ ONLINE_FLAG = False
 if ONLINE_FLAG:
     train_file = '../track2/final_track2_train_new.txt'
     test_file = '../track2/final_track2_test_new.txt'
+    train_data_len = 17170000
 else:
     train_file = '../track2/xa'
     test_file = '../track2/xb'
-sparse_features = ['uid', 'user_city', 'item_id', 'author_id', 'item_city', 'channel', 'music_id', 'did', 
-                   'words', 'freqs',
-                   'gender', 'beauty', 'pos0', 'pos1', 'pos2', 'pos3']
-dense_features = ['video_duration', ]
-train_data_len = 17170000
-train_steps_per_epoch = 17170000 // batch_size
+    train_data_len = 17170000
+
+sparse_features = ['uid', 'user_city', 'item_id', 'author_id', 'item_city', 'channel', 'music_id', 'device']
+dense_features = ['duration_time', ]
+
+batch_size = 4096
+train_steps_per_epoch = train_data_len // batch_size
 duration_time_max = 640
