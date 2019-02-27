@@ -83,7 +83,7 @@ if __name__ == "__main__":
         history = model.fit_generator(train_generator,
                 steps_per_epoch=train_steps_per_epoch,
                 epochs=1,
-                verbose=2)
+                verbose=1)
         pred_ans = model.predict(test_model_input, batch_size=2**14)
         #pred_ans = model.predict_generator(test_generator, steps=3)
         if ONLINE_FLAG: continue
