@@ -15,13 +15,16 @@ def cal_auc(true, pred):
     auc = metrics.roc_auc_score(true, pred)
     return auc
 
+def duration_min_max(x):
+    return (x-0)/(duration_time_max - 0)
+
 def data_generator(file_name):
     fd = open(file_name)
     reader = pd.read_csv(fd, sep='\t', chunksize=batch_size, names=column_names, header=None)
     while True:
         for chunk_df in reader:
             #print("data:", chunk_df.head())
-            chunk_df['duration_time'] = chunk_df['duration_time'].apply(lambda x: (x-0)/(duration_time_max -0))
+            chunk_df['duration_time'] = chunk_df['duration_time'].apply(duration_min_max)
             X = [chunk_df[feat.name].values for feat in sparse_feature_list] + \
                     [chunk_df[feat.name].values for feat in dense_feature_list]
             Y = [chunk_df[target[0]].values, chunk_df[target[1]].values]
@@ -40,7 +43,7 @@ elif sys.argv[1] == 'test':
 if __name__ == "__main__":
 
     test = pd.read_csv(test_file, sep='\t', names=column_names)
-    test['duration_time'] = test['duration_time'].apply(lambda x: (x-0)/(640 -0))
+    test['duration_time'] = test['duration_time'].apply(duration_min_max)
     test_model_input = [test[feat.name].values for feat in sparse_feature_list] + \
         [test[feat.name].values for feat in dense_feature_list]
 
