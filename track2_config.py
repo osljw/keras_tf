@@ -21,11 +21,13 @@ ONLINE_FLAG = False
 if ONLINE_FLAG:
     train_file = '../track2/final_track2_train_new.txt'
     test_file = '../track2/final_track2_test_new.txt'
-    train_data_len = 17170000
+    train_data_len = 19622340
+    epochs = 1
 else:
     train_file = '../track2/xa'
     test_file = '../track2/xb'
     train_data_len = 17170000
+    epochs = 5
 
 sparse_features = ['uid', 'user_city', 'item_id', 'author_id', 'item_city', 'channel', 'music_id', 'device']
 dense_features = ['duration_time', ]

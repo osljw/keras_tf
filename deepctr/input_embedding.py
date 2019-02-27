@@ -11,7 +11,7 @@ from itertools import chain
 
 from tensorflow.python.keras.initializers import RandomNormal
 from tensorflow.python.keras.layers import (Concatenate, Dense, Embedding,
-                                            Input, Reshape, add)
+                                            Input, Lambda, Reshape, add)
 from tensorflow.python.keras.regularizers import l2
 
 from .layers.sequence import SequencePoolingLayer
@@ -152,7 +152,8 @@ def get_inputs_list(inputs):
 
 
 def get_inputs_embedding(feature_dim_dict, embedding_size, l2_reg_embedding, l2_reg_linear, init_std, seed,
-                         sparse_input_dict, dense_input_dict, sequence_input_dict, sequence_input_len_dict,
+                         sparse_input_dict, dense_input_dict, hash_input_dict,
+                         sequence_input_dict, sequence_input_len_dict,
                          sequence_max_len_dict, sequence_pooling_dict, include_linear):
 
     deep_sparse_emb_dict = create_embedding_dict(
@@ -162,8 +163,10 @@ def get_inputs_embedding(feature_dim_dict, embedding_size, l2_reg_embedding, l2_
     print("[get_inputs_embedding] deep_sparse_emb_dict:", deep_sparse_emb_dict)
 
 
+    #deep_emb_list = get_embedding_vec_list(
+    #    deep_sparse_emb_dict, sparse_input_dict)
     deep_emb_list = get_embedding_vec_list(
-        deep_sparse_emb_dict, sparse_input_dict)
+        deep_sparse_emb_dict, hash_input_dict)
     print("[get_inputs_embedding] deep_emb_list after sparse_input_dict:", deep_emb_list)
 
     deep_emb_list = merge_sequence_input(deep_sparse_emb_dict, deep_emb_list, sequence_input_dict,
@@ -180,8 +183,10 @@ def get_inputs_embedding(feature_dim_dict, embedding_size, l2_reg_embedding, l2_
         print("")
         print("[get_inputs_embedding] linear_sparse_emb_dict:", linear_sparse_emb_dict)
         
+        #linear_emb_list = get_embedding_vec_list(
+        #    linear_sparse_emb_dict, sparse_input_dict)
         linear_emb_list = get_embedding_vec_list(
-            linear_sparse_emb_dict, sparse_input_dict)
+            linear_sparse_emb_dict, hash_input_dict)
         print("[get_inputs_embedding] linear_emb_list:", linear_emb_list)
         linear_emb_list = merge_sequence_input(linear_sparse_emb_dict, linear_emb_list, sequence_input_dict,
                                                sequence_input_len_dict,
@@ -217,6 +222,12 @@ def get_linear_logit(linear_emb_list, dense_input_dict, l2_reg):
 
     return linear_term
 
+def hash_input(feature_dim_dict, sparse_input_dict):
+    sparse_dim_list = feature_dim_dict['sparse']
+    sparse_dimension_dict = {f.name:f.dimension for f in sparse_dim_list}
+    hash_ret = {feat:Lambda(lambda x: x % sparse_dimension_dict[feat])(v) for feat, v in sparse_input_dict.items()}
+    return hash_ret
+
 
 def preprocess_input_embedding(feature_dim_dict, embedding_size, l2_reg_embedding, l2_reg_linear, init_std, seed,
                                return_linear_logit=True):
@@ -228,10 +239,13 @@ def preprocess_input_embedding(feature_dim_dict, embedding_size, l2_reg_embeddin
     print("[preprocess_input_embedding] dense_input_dict:", dense_input_dict)
     sequence_input_dict, sequence_pooling_dict, sequence_input_len_dict, sequence_max_len_dict = create_varlenfeat_dict(
         feature_dim_dict)
+
+    hash_input_dict = hash_input(feature_dim_dict, sparse_input_dict)
+    print("[preprocess_input_embedding] hash_input_dict:", hash_input_dict)
     print("[preprocess_input_embedding] sequence_input_dict:", sequence_input_dict)
     inputs_list, deep_emb_list, linear_emb_list = get_inputs_embedding(feature_dim_dict, embedding_size,
                                                                        l2_reg_embedding, l2_reg_linear, init_std, seed,
-                                                                       sparse_input_dict, dense_input_dict,
+                                                                       sparse_input_dict, dense_input_dict, hash_input_dict,
                                                                        sequence_input_dict, sequence_input_len_dict,
                                                                        sequence_max_len_dict, sequence_pooling_dict, return_linear_logit)
     print("[preprocess_input_embedding] linear_emb_list:", linear_emb_list)
