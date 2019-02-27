@@ -1,3 +1,4 @@
+import os
 import sys
 import pandas as pd
 import numpy as np
@@ -16,6 +17,8 @@ elif sys.argv[1] == 'track2':
     from track2_config import *
 elif sys.argv[1] == 'test':
     from test_config import *
+
+ngpus = len(os.environ['CUDA_VISIBLE_DEVICES'].split(','))
 
 loss_weights = [1, 1, ]  # [0.7,0.3]任务权重可以调下试试
 VALIDATION_FRAC = 0.2  # 用做线下验证数据比例
@@ -72,7 +75,7 @@ if __name__ == "__main__":
         model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
     else:
         #model = multi_gpu_model(origin_model, gpus=3, cpu_relocation=True)
-        model = multi_gpu_model(origin_model, gpus=3)
+        model = multi_gpu_model(origin_model, gpus=ngpus)
         model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
     
     print("epochs: {}".format(epochs))
