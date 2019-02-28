@@ -39,7 +39,7 @@ else:
     train_data_len = 240000000
     epochs = 100
 
-batch_size=4096 * ngpus
+batch_size=1028 * ngpus
 #train_steps_per_epoch = train_data_len // batch_size
 train_steps_per_epoch = 10000
 duration_time_max = 150

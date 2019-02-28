@@ -1,0 +1,9 @@
+
+ngpus=6
+batch_size=4096 * ngpus
+train_steps_per_epoch = 10000
+------------------------
+epoch:0, finish auc: 0.5890193729595163, like auc: 0.6571146725269432
+Epoch 1/1
+ - 1767s - loss: 0.6398 - finish_loss: 0.5637 - like_loss: 0.0745
+epoch:1, finish auc: 0.6037922735111196, like auc: 0.6659955465385352

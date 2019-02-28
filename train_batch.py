@@ -7,13 +7,14 @@ from sklearn import metrics
 import tensorflow as tf
 import tensorflow.keras.backend as K
 from tensorflow.keras.utils import multi_gpu_model
+from tensorflow.keras.optimizers import Adagrad
 
 from deepctr import SingleFeat
 from model import xDeepFM_MTL
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
-config.log_device_placement = True  # to log device placement (on which device the operation ran)
+#config.log_device_placement = True  # to log device placement (on which device the operation ran)
                                     # (nothing gets printed in Jupyter, only if you run it standalone)
 config.allow_soft_placement = True  # to log device placement (on which device the operation ran)
 sess = tf.Session(config=config)
@@ -78,17 +79,16 @@ if __name__ == "__main__":
         origin_model = xDeepFM_MTL({"sparse": sparse_feature_list,
                              "dense": dense_feature_list})
     print("==== after model build ===")
+    opt = Adagrad(lr=0.05)
     if 0:
         model = origin_model
         model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
     else:
         #model = multi_gpu_model(origin_model, gpus=3, cpu_relocation=True)
-        print("==== before gpu ===")
         model = multi_gpu_model(origin_model, gpus=ngpus)
-        print("==== before model compile ===")
-        model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
+        #model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
         #model.compile("adam", "binary_crossentropy", loss_weights=loss_weights)
-    print("==== after model compile ===")
+        model.compile(opt, "binary_crossentropy", loss_weights=loss_weights)
     
     print("epochs: {}".format(epochs))
     print("batch_size: {}".format(batch_size))
