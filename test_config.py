@@ -1,4 +1,7 @@
+import os
 from deepctr import SingleFeat
+
+ngpus = len(os.environ['CUDA_VISIBLE_DEVICES'].split(','))
 
 column_names = ["instance_id", 'uid', 'user_city', 'item_id', 'author_id', 'item_city', 'channel', 'finish', 'like', 'music_id', 'device', 'creat_time', 'duration_time',
         "words", "freqs",
@@ -31,7 +34,7 @@ sparse_feature_list = [SingleFeat('uid', 80000),
                        ]
 dense_feature_list = [SingleFeat('duration_time', 0)]
 
-ONLINE_FLAG = True
+ONLINE_FLAG = False
 if ONLINE_FLAG:
     train_file = 'input/train.txt'
     test_file = 'input/test.txt'

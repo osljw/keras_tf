@@ -15,6 +15,7 @@ config = tf.ConfigProto()
 config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
 config.log_device_placement = True  # to log device placement (on which device the operation ran)
                                     # (nothing gets printed in Jupyter, only if you run it standalone)
+config.allow_soft_placement = True  # to log device placement (on which device the operation ran)
 sess = tf.Session(config=config)
 K.set_session(sess)  # set this TensorFlow session as the default session for Keras
 
@@ -72,18 +73,22 @@ if __name__ == "__main__":
         [test[feat.name].values for feat in dense_feature_list]
 
     train_generator = data_generator(train_file)
+    print("==== before model build ===")
     with tf.device('/cpu:0'):
         origin_model = xDeepFM_MTL({"sparse": sparse_feature_list,
                              "dense": dense_feature_list})
-    
+    print("==== after model build ===")
     if 0:
         model = origin_model
         model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
     else:
         #model = multi_gpu_model(origin_model, gpus=3, cpu_relocation=True)
+        print("==== before gpu ===")
         model = multi_gpu_model(origin_model, gpus=ngpus)
-        #model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
-        model.compile("adam", "binary_crossentropy", loss_weights=loss_weights)
+        print("==== before model compile ===")
+        model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
+        #model.compile("adam", "binary_crossentropy", loss_weights=loss_weights)
+    print("==== after model compile ===")
     
     print("epochs: {}".format(epochs))
     print("batch_size: {}".format(batch_size))
