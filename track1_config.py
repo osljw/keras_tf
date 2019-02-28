@@ -1,4 +1,7 @@
+import os
 from deepctr import SingleFeat
+
+ngpus = len(os.environ['CUDA_VISIBLE_DEVICES'].split(','))
 
 column_names = ["instance_id", 'uid', 'user_city', 'item_id', 'author_id', 'item_city', 'channel', 'finish', 'like', 'music_id', 'device', 'creat_time', 'duration_time',
         "words", "freqs",
@@ -36,9 +39,9 @@ else:
     train_data_len = 240000000
     epochs = 100
 
-batch_size=4096
+batch_size=4096 * ngpus
 #train_steps_per_epoch = train_data_len // batch_size
-train_steps_per_epoch = 5000
+train_steps_per_epoch = 10000
 duration_time_max = 150
 
 sparse_features = ['uid', 'user_city', 'item_id', 'author_id', 'item_city', 'channel', 'music_id', 'device']

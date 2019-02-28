@@ -1,0 +1,79 @@
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5
+WARNING:root:
+DeepCTR version 0.3.1 detected. Your version is 0.3.0.
+Use `pip install -U deepctr` to upgrade.Changelog: https://github.com/shenweichen/DeepCTR/releases/tag/v0.3.1
+WARNING:tensorflow:From /home/appops/lijianwei1/icme_keras/deepctr/layers/interaction.py:294: calling reduce_sum (from tensorflow.python.ops.math_ops) with keep_dims is deprecated and will be removed in a future version.
+Instructions for updating:
+keep_dims is deprecated, use keepdims instead
+WARNING:tensorflow:From /home/appops/lijianwei1/icme_keras/deepctr/layers/interaction.py:294: calling reduce_sum (from tensorflow.python.ops.math_ops) with keep_dims is deprecated and will be removed in a future version.
+Instructions for updating:
+keep_dims is deprecated, use keepdims instead
+2019-02-28 09:25:43.699517: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2019-02-28 09:25:48.177062: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1392] Found device 0 with properties: 
+name: GeForce GTX 1080 Ti major: 6 minor: 1 memoryClockRate(GHz): 1.582
+pciBusID: 0000:04:00.0
+totalMemory: 10.92GiB freeMemory: 8.62GiB
+2019-02-28 09:25:48.414475: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1392] Found device 1 with properties: 
+name: GeForce GTX 1080 Ti major: 6 minor: 1 memoryClockRate(GHz): 1.582
+pciBusID: 0000:05:00.0
+totalMemory: 10.92GiB freeMemory: 10.76GiB
+2019-02-28 09:25:48.721334: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1392] Found device 2 with properties: 
+name: GeForce GTX 1080 Ti major: 6 minor: 1 memoryClockRate(GHz): 1.582
+pciBusID: 0000:08:00.0
+totalMemory: 10.92GiB freeMemory: 10.76GiB
+2019-02-28 09:25:48.950512: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1392] Found device 3 with properties: 
+name: GeForce GTX 1080 Ti major: 6 minor: 1 memoryClockRate(GHz): 1.582
+pciBusID: 0000:09:00.0
+totalMemory: 10.92GiB freeMemory: 10.76GiB
+2019-02-28 09:25:49.190456: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1392] Found device 4 with properties: 
+name: GeForce GTX 1080 Ti major: 6 minor: 1 memoryClockRate(GHz): 1.582
+pciBusID: 0000:85:00.0
+totalMemory: 10.92GiB freeMemory: 10.76GiB
+2019-02-28 09:25:49.432756: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1392] Found device 5 with properties: 
+name: GeForce GTX 1080 Ti major: 6 minor: 1 memoryClockRate(GHz): 1.582
+pciBusID: 0000:86:00.0
+totalMemory: 10.92GiB freeMemory: 10.76GiB
+2019-02-28 09:25:49.443116: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1471] Adding visible gpu devices: 0, 1, 2, 3, 4, 5
+2019-02-28 09:25:50.985201: I tensorflow/core/common_runtime/gpu/gpu_device.cc:952] Device interconnect StreamExecutor with strength 1 edge matrix:
+2019-02-28 09:25:50.985262: I tensorflow/core/common_runtime/gpu/gpu_device.cc:958]      0 1 2 3 4 5 
+2019-02-28 09:25:50.985273: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 0:   N Y Y Y N N 
+2019-02-28 09:25:50.985281: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 1:   Y N Y Y N N 
+2019-02-28 09:25:50.985288: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 2:   Y Y N Y N N 
+2019-02-28 09:25:50.985296: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 3:   Y Y Y N N N 
+2019-02-28 09:25:50.985303: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 4:   N N N N N Y 
+2019-02-28 09:25:50.985311: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 5:   N N N N Y N 
+2019-02-28 09:25:50.986732: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1084] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 8333 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:04:00.0, compute capability: 6.1)
+2019-02-28 09:25:51.036539: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1084] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 10409 MB memory) -> physical GPU (device: 1, name: GeForce GTX 1080 Ti, pci bus id: 0000:05:00.0, compute capability: 6.1)
+2019-02-28 09:25:51.098468: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1084] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:2 with 10409 MB memory) -> physical GPU (device: 2, name: GeForce GTX 1080 Ti, pci bus id: 0000:08:00.0, compute capability: 6.1)
+2019-02-28 09:25:51.161337: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1084] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:3 with 10409 MB memory) -> physical GPU (device: 3, name: GeForce GTX 1080 Ti, pci bus id: 0000:09:00.0, compute capability: 6.1)
+2019-02-28 09:25:51.223665: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1084] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:4 with 10409 MB memory) -> physical GPU (device: 4, name: GeForce GTX 1080 Ti, pci bus id: 0000:85:00.0, compute capability: 6.1)
+2019-02-28 09:25:51.284706: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1084] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:5 with 10409 MB memory) -> physical GPU (device: 5, name: GeForce GTX 1080 Ti, pci bus id: 0000:86:00.0, compute capability: 6.1)
+[xdeepfm] feature_dim_dict: {'sparse': [SingleFeat(name='uid', dimension=670000), SingleFeat(name='item_id', dimension=3200000), SingleFeat(name='author_id', dimension=1500000), SingleFeat(name='item_city', dimension=500), SingleFeat(name='channel', dimension=6), SingleFeat(name='music_id', dimension=780000), SingleFeat(name='device', dimension=5000)], 'dense': [SingleFeat(name='duration_time', dimension=0)]}
+
+
+[preprocess_input_embedding] sparse_input_dict: OrderedDict([('uid', <tf.Tensor 'sparse_0-uid:0' shape=(?, 1) dtype=float32>), ('item_id', <tf.Tensor 'sparse_1-item_id:0' shape=(?, 1) dtype=float32>), ('author_id', <tf.Tensor 'sparse_2-author_id:0' shape=(?, 1) dtype=float32>), ('item_city', <tf.Tensor 'sparse_3-item_city:0' shape=(?, 1) dtype=float32>), ('channel', <tf.Tensor 'sparse_4-channel:0' shape=(?, 1) dtype=float32>), ('music_id', <tf.Tensor 'sparse_5-music_id:0' shape=(?, 1) dtype=float32>), ('device', <tf.Tensor 'sparse_6-device:0' shape=(?, 1) dtype=float32>)])
+[preprocess_input_embedding] dense_input_dict: OrderedDict([(SingleFeat(name='duration_time', dimension=0), <tf.Tensor 'dense_0-duration_time:0' shape=(?, 1) dtype=float32>)])
+[preprocess_input_embedding] hash_input_dict: {'uid': <tf.Tensor 'lambda/mod:0' shape=(?, 1) dtype=float32>, 'item_id': <tf.Tensor 'lambda_1/mod:0' shape=(?, 1) dtype=float32>, 'author_id': <tf.Tensor 'lambda_2/mod:0' shape=(?, 1) dtype=float32>, 'item_city': <tf.Tensor 'lambda_3/mod:0' shape=(?, 1) dtype=float32>, 'channel': <tf.Tensor 'lambda_4/mod:0' shape=(?, 1) dtype=float32>, 'music_id': <tf.Tensor 'lambda_5/mod:0' shape=(?, 1) dtype=float32>, 'device': <tf.Tensor 'lambda_6/mod:0' shape=(?, 1) dtype=float32>}
+[preprocess_input_embedding] sequence_input_dict: {}
+
+
+[get_inputs_embedding] deep_sparse_emb_dict: {'uid': <tensorflow.python.keras.layers.embeddings.Embedding object at 0x7fa2a6bf8550>, 'item_id': <tensorflow.python.keras.layers.embeddings.Embedding object at 0x7fa2b677f668>, 'author_id': <tensorflow.python.keras.layers.embeddings.Embedding object at 0x7fa2b677f550>, 'item_city': <tensorflow.python.keras.layers.embeddings.Embedding object at 0x7fa2b677f9b0>, 'channel': <tensorflow.python.keras.layers.embeddings.Embedding object at 0x7fa2b677fb70>, 'music_id': <tensorflow.python.keras.layers.embeddings.Embedding object at 0x7fa2b677fbe0>, 'device': <tensorflow.python.keras.layers.embeddings.Embedding object at 0x7fa2b677fc88>}
+[get_inputs_embedding] deep_emb_list after sparse_input_dict: [<tf.Tensor 'sparse_emb_0-uid/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_1-item_id/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_2-author_id/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_3-item_city/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_4-channel/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_5-music_id/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_6-device/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>]
+[get_inputs_embedding] deep_emb_list after dense_input_dict: [<tf.Tensor 'sparse_emb_0-uid/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_1-item_id/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_2-author_id/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_3-item_city/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_4-channel/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_5-music_id/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_6-device/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'reshape/Reshape:0' shape=(?, 1, 8) dtype=float32>]
+
+
+[get_inputs_embedding] linear_sparse_emb_dict: {'uid': <tensorflow.python.keras.layers.embeddings.Embedding object at 0x7fa2e0d5ac18>, 'item_id': <tensorflow.python.keras.layers.embeddings.Embedding object at 0x7fa2e0d5aa90>, 'author_id': <tensorflow.python.keras.layers.embeddings.Embedding object at 0x7fa2e0cfce80>, 'item_city': <tensorflow.python.keras.layers.embeddings.Embedding object at 0x7fa2e0cfcf60>, 'channel': <tensorflow.python.keras.layers.embeddings.Embedding object at 0x7fa2e0cfcd30>, 'music_id': <tensorflow.python.keras.layers.embeddings.Embedding object at 0x7fa2e0cfcfd0>, 'device': <tensorflow.python.keras.layers.embeddings.Embedding object at 0x7fa2e0d0c0b8>}
+[get_inputs_embedding] linear_emb_list: [<tf.Tensor 'linear_emb_0-uid/embedding_lookup/Identity_1:0' shape=(?, 1, 1) dtype=float32>, <tf.Tensor 'linear_emb_1-item_id/embedding_lookup/Identity_1:0' shape=(?, 1, 1) dtype=float32>, <tf.Tensor 'linear_emb_2-author_id/embedding_lookup/Identity_1:0' shape=(?, 1, 1) dtype=float32>, <tf.Tensor 'linear_emb_3-item_city/embedding_lookup/Identity_1:0' shape=(?, 1, 1) dtype=float32>, <tf.Tensor 'linear_emb_4-channel/embedding_lookup/Identity_1:0' shape=(?, 1, 1) dtype=float32>, <tf.Tensor 'linear_emb_5-music_id/embedding_lookup/Identity_1:0' shape=(?, 1, 1) dtype=float32>, <tf.Tensor 'linear_emb_6-device/embedding_lookup/Identity_1:0' shape=(?, 1, 1) dtype=float32>]
+
+
+[preprocess_input_embedding] linear_emb_list: [<tf.Tensor 'linear_emb_0-uid/embedding_lookup/Identity_1:0' shape=(?, 1, 1) dtype=float32>, <tf.Tensor 'linear_emb_1-item_id/embedding_lookup/Identity_1:0' shape=(?, 1, 1) dtype=float32>, <tf.Tensor 'linear_emb_2-author_id/embedding_lookup/Identity_1:0' shape=(?, 1, 1) dtype=float32>, <tf.Tensor 'linear_emb_3-item_city/embedding_lookup/Identity_1:0' shape=(?, 1, 1) dtype=float32>, <tf.Tensor 'linear_emb_4-channel/embedding_lookup/Identity_1:0' shape=(?, 1, 1) dtype=float32>, <tf.Tensor 'linear_emb_5-music_id/embedding_lookup/Identity_1:0' shape=(?, 1, 1) dtype=float32>, <tf.Tensor 'linear_emb_6-device/embedding_lookup/Identity_1:0' shape=(?, 1, 1) dtype=float32>]
+
+
+[xdeepfm] deep_emb_list: [<tf.Tensor 'sparse_emb_0-uid/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_1-item_id/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_2-author_id/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_3-item_city/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_4-channel/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_5-music_id/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'sparse_emb_6-device/embedding_lookup/Identity_1:0' shape=(?, 1, 8) dtype=float32>, <tf.Tensor 'reshape/Reshape:0' shape=(?, 1, 8) dtype=float32>]
+[xdeepfm] linear_logit: Tensor("add_1/add:0", shape=(?, 1, 1), dtype=float32, device=/device:CPU:0)
+[xdeepfm] inputs_list: [<tf.Tensor 'sparse_0-uid:0' shape=(?, 1) dtype=float32>, <tf.Tensor 'sparse_1-item_id:0' shape=(?, 1) dtype=float32>, <tf.Tensor 'sparse_2-author_id:0' shape=(?, 1) dtype=float32>, <tf.Tensor 'sparse_3-item_city:0' shape=(?, 1) dtype=float32>, <tf.Tensor 'sparse_4-channel:0' shape=(?, 1) dtype=float32>, <tf.Tensor 'sparse_5-music_id:0' shape=(?, 1) dtype=float32>, <tf.Tensor 'sparse_6-device:0' shape=(?, 1) dtype=float32>, <tf.Tensor 'dense_0-duration_time:0' shape=(?, 1) dtype=float32>]
+epochs: 100
+batch_size: 24576
+train_steps_per_epoch: 10000
+Epoch 1/1
+ - 1996s - loss: 0.6424 - finish_loss: 0.5613 - like_loss: 0.0761

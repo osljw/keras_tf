@@ -5,11 +5,18 @@ import numpy as np
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from sklearn import metrics
 import tensorflow as tf
+import tensorflow.keras.backend as K
 from tensorflow.keras.utils import multi_gpu_model
 
 from deepctr import SingleFeat
 from model import xDeepFM_MTL
 
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
+config.log_device_placement = True  # to log device placement (on which device the operation ran)
+                                    # (nothing gets printed in Jupyter, only if you run it standalone)
+sess = tf.Session(config=config)
+K.set_session(sess)  # set this TensorFlow session as the default session for Keras
 
 if sys.argv[1] == 'track1':
     from track1_config import *
@@ -18,7 +25,6 @@ elif sys.argv[1] == 'track2':
 elif sys.argv[1] == 'test':
     from test_config import *
 
-ngpus = len(os.environ['CUDA_VISIBLE_DEVICES'].split(','))
 
 loss_weights = [1, 1, ]  # [0.7,0.3]任务权重可以调下试试
 VALIDATION_FRAC = 0.2  # 用做线下验证数据比例
@@ -76,7 +82,8 @@ if __name__ == "__main__":
     else:
         #model = multi_gpu_model(origin_model, gpus=3, cpu_relocation=True)
         model = multi_gpu_model(origin_model, gpus=ngpus)
-        model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
+        #model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
+        model.compile("adam", "binary_crossentropy", loss_weights=loss_weights)
     
     print("epochs: {}".format(epochs))
     print("batch_size: {}".format(batch_size))
@@ -86,7 +93,7 @@ if __name__ == "__main__":
         history = model.fit_generator(train_generator,
                 steps_per_epoch=train_steps_per_epoch,
                 epochs=1,
-                verbose=1)
+                verbose=2)
         pred_ans = model.predict(test_model_input, batch_size=2**14)
         #pred_ans = model.predict_generator(test_generator, steps=3)
         if ONLINE_FLAG: continue
