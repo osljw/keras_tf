@@ -34,12 +34,12 @@ sparse_feature_list = [SingleFeat('uid', 80000),
                        ]
 dense_feature_list = [SingleFeat('duration_time', 0)]
 
-ONLINE_FLAG = False
+ONLINE_FLAG = True
 if ONLINE_FLAG:
     train_file = 'input/train.txt'
     test_file = 'input/test.txt'
     train_data_len = 10000
-    epochs = 1
+    epochs = 2
 else:
     train_file = 'input/train.txt'
     test_file = 'input/test.txt'

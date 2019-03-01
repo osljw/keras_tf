@@ -7,3 +7,26 @@ epoch:0, finish auc: 0.5890193729595163, like auc: 0.6571146725269432
 Epoch 1/1
  - 1767s - loss: 0.6398 - finish_loss: 0.5637 - like_loss: 0.0745
 epoch:1, finish auc: 0.6037922735111196, like auc: 0.6659955465385352
+
+
+Adagrad lr=0.05
+ngpus=6
+batch_size=4096 * ngpus
+train_steps_per_epoch = 10000
+Epoch 1/1
+ - 1556s - loss: 0.6397 - finish_loss: 0.5592 - like_loss: 0.0752
+epoch:0, finish auc: 0.602016617973708, like auc: 0.649170495759234
+Epoch 1/1
+ - 1523s - loss: 0.6358 - finish_loss: 0.5568 - like_loss: 0.0741
+epoch:1, finish auc: 0.6073221193487708, like auc: 0.6587642683893029
+Epoch 1/1
+ - 1524s - loss: 0.6342 - finish_loss: 0.5557 - like_loss: 0.0739
+epoch:2, finish auc: 0.6083928907340334, like auc: 0.6630088972245873
+Epoch 1/1
+ - 1528s - loss: 0.6330 - finish_loss: 0.5549 - like_loss: 0.0737
+epoch:3, finish auc: 0.6089489221959884, like auc: 0.6656920405086646
+Epoch 1/1
+ - 1560s - loss: 0.6321 - finish_loss: 0.5544 - like_loss: 0.0734
+epoch:4, finish auc: 0.6116159417036303, like auc: 0.6684827339342937
+Epoch 1/1
+ - 1559s - loss: 0.6320 - finish_loss: 0.5547 - like_loss: 0.0732

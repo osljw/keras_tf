@@ -90,6 +90,7 @@ if __name__ == "__main__":
         #model.compile("adam", "binary_crossentropy", loss_weights=loss_weights)
         model.compile(opt, "binary_crossentropy", loss_weights=loss_weights)
     
+    print("ngpus: {}".format(ngpus))
     print("epochs: {}".format(epochs))
     print("batch_size: {}".format(batch_size))
     print("train_steps_per_epoch: {}".format(train_steps_per_epoch))
@@ -98,21 +99,31 @@ if __name__ == "__main__":
         history = model.fit_generator(train_generator,
                 steps_per_epoch=train_steps_per_epoch,
                 epochs=1,
-                verbose=2)
+                verbose=1)
         pred_ans = model.predict(test_model_input, batch_size=2**14)
         #pred_ans = model.predict_generator(test_generator, steps=3)
-        if ONLINE_FLAG: continue
-        finish_auc = cal_auc(test['finish'], pred_ans[0])
-        like_auc = cal_auc(test['like'], pred_ans[1])
-        print("epoch:{}, finish auc: {}, like auc: {}".format(i, finish_auc, like_auc))
+        #if ONLINE_FLAG: continue
+        if ONLINE_FLAG:
+            result = test[['uid', 'item_id', 'finish', 'like']].copy()
+            result.rename(columns={'finish': 'finish_probability',
+                                   'like': 'like_probability'}, inplace=True)
+            result['finish_probability'] = pred_ans[0]
+            result['like_probability'] = pred_ans[1]
+            output_file = 'epoch' + str(i) + '_result.csv'
+            result[['uid', 'item_id', 'finish_probability', 'like_probability']].to_csv(
+                output_file, index=None, float_format='%.6f')
+        else:
+            finish_auc = cal_auc(test['finish'], pred_ans[0])
+            like_auc = cal_auc(test['like'], pred_ans[1])
+            print("epoch:{}, finish auc: {}, like auc: {}".format(i, finish_auc, like_auc))
 
     #sys.exit()
 
-    if ONLINE_FLAG:
-        result = test[['uid', 'item_id', 'finish', 'like']].copy()
-        result.rename(columns={'finish': 'finish_probability',
-                               'like': 'like_probability'}, inplace=True)
-        result['finish_probability'] = pred_ans[0]
-        result['like_probability'] = pred_ans[1]
-        result[['uid', 'item_id', 'finish_probability', 'like_probability']].to_csv(
-            'result.csv', index=None, float_format='%.6f')
+    #if ONLINE_FLAG:
+    #    result = test[['uid', 'item_id', 'finish', 'like']].copy()
+    #    result.rename(columns={'finish': 'finish_probability',
+    #                           'like': 'like_probability'}, inplace=True)
+    #    result['finish_probability'] = pred_ans[0]
+    #    result['like_probability'] = pred_ans[1]
+    #    result[['uid', 'item_id', 'finish_probability', 'like_probability']].to_csv(
+    #        'result.csv', index=None, float_format='%.6f')
