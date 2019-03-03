@@ -79,16 +79,16 @@ if __name__ == "__main__":
         origin_model = xDeepFM_MTL({"sparse": sparse_feature_list,
                              "dense": dense_feature_list})
     print("==== after model build ===")
-    opt = Adagrad(lr=0.05)
+    #opt = Adagrad(lr=0.08)
     if 0:
         model = origin_model
         model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
     else:
         #model = multi_gpu_model(origin_model, gpus=3, cpu_relocation=True)
         model = multi_gpu_model(origin_model, gpus=ngpus)
-        #model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
+        model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
         #model.compile("adam", "binary_crossentropy", loss_weights=loss_weights)
-        model.compile(opt, "binary_crossentropy", loss_weights=loss_weights)
+        #model.compile(opt, "binary_crossentropy", loss_weights=loss_weights)
     
     print("ngpus: {}".format(ngpus))
     print("epochs: {}".format(epochs))
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         history = model.fit_generator(train_generator,
                 steps_per_epoch=train_steps_per_epoch,
                 epochs=1,
-                verbose=1)
+                verbose=2)
         pred_ans = model.predict(test_model_input, batch_size=2**14)
         #pred_ans = model.predict_generator(test_generator, steps=3)
         #if ONLINE_FLAG: continue
