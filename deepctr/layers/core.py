@@ -12,6 +12,9 @@ from tensorflow.python.keras.initializers import Zeros, glorot_normal
 from tensorflow.python.keras.layers import Layer
 from tensorflow.python.keras.regularizers import l2
 
+from tensorflow.python.keras.layers import (Concatenate, Dense, Embedding,
+                                            Input, Lambda, Reshape, add)
+
 from .activation import activation_fun
 
 
@@ -189,6 +192,83 @@ class MLP(Layer):
         config = {'activation': self.activation, 'hidden_size': self.hidden_size,
                   'l2_reg': self.l2_reg, 'use_bn': self.use_bn, 'keep_prob': self.keep_prob, 'seed': self.seed}
         base_config = super(MLP, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
+class NumericFeatureColumnLayer(Layer):
+    """
+      Arguments
+         - **activation**: Activation function to use.
+
+         - **use_bias**: bool.Whether add bias term or not.
+    """
+
+    def __init__(self, name, size, features, **kwargs):
+        self.fc = tf.feature_column.numeric_column(name, shape=(size,))
+        #tensor = features[name]
+        #tensor = tf.string_to_number(tensor, tf.float32)
+        #self.features = {name: tensor}
+        self.features = features
+        self.output_tensor = None
+        super(NumericFeatureColumnLayer, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        # Be sure to call this somewhere!
+        self.output_tensor = tf.feature_column.input_layer(self.features, self.fc)
+        super(NumericFeatureColumnLayer, self).build(input_shape)
+
+    def call(self, inputs, **kwargs):
+        #if self.builded == False:
+        #    print("inputs:", inputs)
+        #    self.outputs = tf.feature_column.input_layer(inputs, self.fc)
+        #    print("outputs:", self.outputs)
+        #    self.builded = True
+        #output = Lambda(lambda x: x)(self.outputs)
+        output = self.output_tensor
+        return output
+
+    def compute_output_shape(self, input_shape):
+        return (None, 1)
+
+    def get_config(self,):
+        config = {'activation': self.activation, 'use_bias': self.use_bias}
+        base_config = super(FeatureColumnLayer, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
+class EmbeddingFeatureColumnLayer(Layer):
+    """
+      Arguments
+         - **activation**: Activation function to use.
+
+         - **use_bias**: bool.Whether add bias term or not.
+    """
+
+    def __init__(self, feature_name, feature_column, dimension, features, **kwargs):
+        self.fc = feature_column
+        self.embed = tf.feature_column.embedding_column(self.fc, dimension=dimension)
+        self.builded = False
+        #self.features = {}
+        #tensor = tf.reshape(features[feature_name], [-1])
+        #tensor =  tf.string_split(tensor, ',')
+        #sp_values = tf.string_to_number(tensor.values, tf.int32)
+        #self.features[feature_name] = tf.SparseTensor(tensor.indices, sp_values, tensor.dense_shape)
+        self.features = features
+        self.output_tensor = None
+        super(EmbeddingFeatureColumnLayer, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        # Be sure to call this somewhere!
+        self.output_tensor = tf.feature_column.input_layer(self.features, self.embed)
+        super(EmbeddingFeatureColumnLayer, self).build(input_shape)
+
+    def call(self, inputs, **kwargs):
+        return self.output_tensor
+
+    def compute_output_shape(self, input_shape):
+        return (None, 1)
+
+    def get_config(self,):
+        config = {'activation': self.activation, 'use_bias': self.use_bias}
+        base_config = super(FeatureColumnLayer, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
 
 
