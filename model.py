@@ -67,6 +67,16 @@ def build_features(input_tensors):
             features[feature_name] = tf.SparseTensor(tensor.indices, sp_values, tensor.dense_shape)
     return features
 
+def build_feature_columns(embedding_feature_list):
+    fc_dict = {}
+    for feature_info in embedding_feature_list:
+        name = feature_info.name
+        num_buckets = feature_info.num_buckets
+        if len(name.split('_X_')) > 1:
+            fc_dict[name] = tf.feature_column.crossed_column(name.split('_X_'), hash_bucket_size=num_buckets)
+        else:
+            fc_dict[name] = tf.feature_column.categorical_column_with_identity(name, num_buckets, default_value=0)
+    return fc_dict
 
 def xDeepFM_MTL(input_feature_list, 
                 embedding_feature_list,
@@ -91,31 +101,25 @@ def xDeepFM_MTL(input_feature_list,
 
     embedding_size = 8
     features = build_features(input_tensors)
+    fc_dict = build_feature_columns(embedding_feature_list)
 
-    fc_dict = {}
-    for feature_info in embedding_feature_list:
-        name = feature_info.name
-        num_buckets = feature_info.num_buckets
-        fc_dict[name] = tf.feature_column.categorical_column_with_identity(name, num_buckets, default_value=0)
-    #for feature_info in cross_feature_list:
-    #    keys = feature_info.keys
-    #    hash_bucket_size = feature_info.hash_bucket_size
-    #    fc_dict[name] = tf.feature_column.crossed_column(keys, hash_bucket_size)
-        fc_dict['_X_'.join(['uid', 'item_id'])] = tf.feature_column.crossed_column(['uid', 'item_id'], 10000)
 
-    embedding_tensors = {}
-    for feature_info in embedding_feature_list:
-        name = feature_info.name
-        dimension = embedding_size
-        tensor = EmbeddingFeatureColumnLayer(name, fc_dict[name], dimension=dimension, features=features)(input_tensors['uid'])
-        embedding_tensors[name] = tensor
-    
-    linear_embedding_tensors = {}
-    for feature_info in embedding_feature_list:
-        name = feature_info.name
-        dimension = 1
-        tensor = EmbeddingFeatureColumnLayer(name, fc_dict[name], dimension=dimension, features=features)(input_tensors['uid'])
-        linear_embedding_tensors[name] = tensor
+    with tf.device('/cpu:0'):
+        embedding_tensors = {}
+        for feature_info in embedding_feature_list:
+            name = feature_info.name
+            dimension = embedding_size
+            inputs = [input_tensors[x] for x in name.split("_X_")]
+            tensor = EmbeddingFeatureColumnLayer(name, fc_dict[name], dimension=dimension, features=features)(inputs)
+            embedding_tensors[name] = tensor
+        
+        linear_embedding_tensors = {}
+        for feature_info in embedding_feature_list:
+            name = feature_info.name
+            dimension = 1
+            inputs = [input_tensors[x] for x in name.split("_X_")]
+            tensor = EmbeddingFeatureColumnLayer(name, fc_dict[name], dimension=dimension, features=features)(inputs)
+            linear_embedding_tensors[name] = tensor
 
     numeric_tensors = {}
     for feature_info in numeric_feature_list:
@@ -171,11 +175,8 @@ def xDeepFM_MTL(input_feature_list,
     print("output_like", type(output_like), output_like)
 
     inputs_list = list(input_tensors.values())
-    #outputs_list = [output_finish, output_like]
-    outputs_list = output_finish
-    print("outputs_list:", outputs_list)
-    model = tf.keras.models.Model(inputs=inputs_list, outputs=[
-                                  output_finish, output_like])
-    #model = tf.keras.models.Model(inputs=inputs_list, outputs=outputs_list)
+    outputs_list = [output_finish, output_like]
+    #outputs_list = output_finish
+    model = tf.keras.models.Model(inputs=inputs_list, outputs=outputs_list)
     return model
 

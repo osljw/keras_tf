@@ -80,11 +80,11 @@ features = [
 embedding_size = 8
 
 print_head = True
-def data_generator(file_name):
+def data_generator(file_name, epochs=1):
     global print_head
-    fd = open(file_name)
-    reader = pd.read_csv(fd, sep='\t', chunksize=batch_size, names=column_names, header=None)
-    while True:
+    while epochs:
+        fd = open(file_name)
+        reader = pd.read_csv(fd, sep='\t', chunksize=batch_size, names=column_names, header=None)
         for chunk_df in reader:
             #print("dtypes:", chunk_df.dtypes)
             #print("data before modify:", chunk_df['user_city'].head())
@@ -101,8 +101,7 @@ def data_generator(file_name):
                 print_head = False
             yield X, Y
         fd.close()
-        fd = open(file_name)
-        reader = pd.read_csv(fd, sep='\t', chunksize=batch_size, names=column_names, header=None)
+        epochs -= 1
 
 
 if __name__ == "__main__":
@@ -112,8 +111,6 @@ if __name__ == "__main__":
     #test_model_input = [test[feat.name].values for feat in sparse_feature_list] + \
     #    [test[feat.name].values for feat in dense_feature_list]
 
-    train_generator = data_generator(train_file)
-    test_generator = data_generator(test_file)
 
     input_feature_list = [FeatureInfo(feature, "string", 1) for feature in features]
     
@@ -125,51 +122,67 @@ if __name__ == "__main__":
         EmbeddingFeatureInfo('channel', 100000, dimension=embedding_size),
         EmbeddingFeatureInfo('music_id', 100000, dimension=embedding_size),
         EmbeddingFeatureInfo('words', 100000, dimension=embedding_size),
-        #EmbeddingFeatureInfo('_X_'.join(['uid', 'item_id']), 100000, dimension=embedding_size),
+        EmbeddingFeatureInfo('_X_'.join(['uid', 'item_id']), 100000, dimension=embedding_size),
+        EmbeddingFeatureInfo('_X_'.join(['uid', 'author_id']), 100000, dimension=embedding_size),
+        EmbeddingFeatureInfo('_X_'.join(['uid', 'channel']), 100000, dimension=embedding_size),
+        EmbeddingFeatureInfo('_X_'.join(['uid', 'words']), 100000, dimension=embedding_size),
     ]
     
     numeric_feature_list = [
         NumericFeatureInfo('duration_time', 1),
     ]
 
-    print("==== before model build ===")
-    with tf.device('/cpu:0'):
-        origin_model = xDeepFM_MTL(input_feature_list,
-                                   embedding_feature_list,
-                                   numeric_feature_list,
-                                   embedding_size=embedding_size,
-                                   )
-    print("==== after model build ===")
-    #opt = Adagrad(lr=0.08)
+    model = xDeepFM_MTL(input_feature_list,
+                        embedding_feature_list,
+                        numeric_feature_list,
+                        embedding_size=embedding_size,
+                        )
+    model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
 
-    K.get_session().run(tf.global_variables_initializer())
-    K.get_session().run(tf.tables_initializer())
+    #print("==== before model build ===")
+    #with tf.device('/cpu:0'):
+    #    origin_model = xDeepFM_MTL(input_feature_list,
+    #                               embedding_feature_list,
+    #                               numeric_feature_list,
+    #                               embedding_size=embedding_size,
+    #                               )
+    #print("==== after model build ===")
+    ##opt = Adagrad(lr=0.08)
 
-    for layer in origin_model.layers:
-        print("\tname:", layer.name, 
-              "trainable_weights:", layer.trainable_weights,
-              "weights:", layer.weights,
-              )
-              #"weights:", layer.get_weights())
 
-    if 1:
-        model = origin_model
-        model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
-    else:
-        #model = multi_gpu_model(origin_model, gpus=3, cpu_relocation=True)
-        model = multi_gpu_model(origin_model, gpus=ngpus)
-        model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
-        #model.compile("adam", "binary_crossentropy", loss_weights=loss_weights)
-        #model.compile(opt, "binary_crossentropy", loss_weights=loss_weights)
+
+    #if 1:
+    #    model = origin_model
+    #    model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
+    #else:
+    #    #model = multi_gpu_model(origin_model, gpus=3, cpu_relocation=True)
+    #    model = multi_gpu_model(origin_model, gpus=ngpus)
+    #    model.compile("adagrad", "binary_crossentropy", loss_weights=loss_weights)
+    #    #model.compile("adam", "binary_crossentropy", loss_weights=loss_weights)
+    #    #model.compile(opt, "binary_crossentropy", loss_weights=loss_weights)
     
     print("ngpus: {}".format(ngpus))
     print("epochs: {}".format(epochs))
     print("batch_size: {}".format(batch_size))
     print("train_steps_per_epoch: {}".format(train_steps_per_epoch))
+    
+    K.get_session().run(tf.global_variables_initializer())
+    K.get_session().run(tf.tables_initializer())
+
+    
+    for layer in model.layers:
+        print("\tname:", layer.name, 
+              "trainable_weights:", layer.trainable_weights,
+              "weights:", layer.weights,
+              )
+              #"weights:", layer.get_weights())
+    print("model inputs:", model.inputs)
+    print("model outputs:", model.outputs)
 
     for i in range(epochs):
         print("\n\n========== epochs: {} ============".format(i))
         print("train:")
+        train_generator = data_generator(train_file, epochs=1)
         history = model.fit_generator(train_generator,
                 steps_per_epoch=train_steps_per_epoch,
                 epochs=1,
@@ -177,7 +190,26 @@ if __name__ == "__main__":
         print("\npredict:")
         #pred_ans = model.predict(test_model_input, batch_size=2**14)
         #pred_ans = model.evaluate_generator(eval_generator, steps=3)
-        pred_ans = model.predict_generator(test_generator, steps=3)
+        #pred_ans = model.predict_generator(test_generator, steps=3)
+        test_generator = data_generator(test_file, epochs=1)
+        test = []
+        for X, Y in test_generator:
+            pred = model.predict(X)
+            batch_test = pd.DataFrame({'uid': X['uid'],
+                                       'item_id': X['item_id'],
+                                       'finish': Y['finish'],
+                                       'like': Y['like'],
+                                       'finish_pred': pred[0].reshape(-1),
+                                       'like_pred': pred[1].reshape(-1),
+            })
+            test.append(batch_test)
+        test = pd.concat(test, axis=0)
+        print(test.head())
+        print("len: {}".format(len(test)))
+        finish_auc = cal_auc(test['finish'], test['finish_pred'])
+        like_auc = cal_auc(test['like'], test['like_pred'])
+        print("epoch:{}, finish auc: {}, like auc: {}".format(i, finish_auc, like_auc))
+
         #if ONLINE_FLAG: continue
         #if ONLINE_FLAG:
         #    result = test[['uid', 'item_id', 'finish', 'like']].copy()
