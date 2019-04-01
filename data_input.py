@@ -1,4 +1,6 @@
 import numpy as np
+import pandas as pd
+import tensorflow as tf
 import tensorflow.keras as keras
 
 
@@ -14,44 +16,42 @@ import tensorflow.keras as keras
 #        pass
 
 
+# data preprocess
+duration_time_max = 150
+
+def duration_min_max(x):
+    return (x-0)/(duration_time_max - 0)
+
+def data_clip(x):
+    return x if x > 0 else 1
+
 def data_preprocess(df):
-    #print("sparse_features", sparse_features)
     df['duration_time'] = df['duration_time'].apply(duration_min_max)
-    df[sparse_features] = df[sparse_features].apply(lambda x: x.clip(lower=0))
-    df[dense_features] = df[dense_features].fillna(0,)
+    df = df.fillna(0)
     return df
 
-def data_generator(file_name):
-    fd = open(file_name)
-    reader = pd.read_csv(fd, sep='\t', chunksize=batch_size, names=column_names, header=None)
-    while True:
-        for chunk_df in reader:
-            #print("dtypes:", chunk_df.dtypes)
-            #print("data before modify:", chunk_df['user_city'].head())
-            chunk_df = data_preprocess(chunk_df)
-            #print("data after modify:", df['user_city'].head())
-            X = [chunk_df[feat.name].values for feat in sparse_feature_list] + \
-                    [chunk_df[feat.name].values for feat in dense_feature_list]
-            Y = [chunk_df[target[0]].values, chunk_df[target[1]].values]
-            yield X, Y
-        fd.close()
-        fd = open(file_name)
-        reader = pd.read_csv(fd, sep='\t', chunksize=batch_size, names=column_names, header=None)
-
-def data_generator_new(file_name):
-    fd = open(file_name)
-    reader = pd.read_csv(fd, sep='\t', chunksize=batch_size, names=column_names, header=None)
-    while True:
-        for chunk_df in reader:
-            #print("dtypes:", chunk_df.dtypes)
-            #print("data before modify:", chunk_df['user_city'].head())
-            chunk_df = data_preprocess(chunk_df)
-            #print("data after modify:", df['user_city'].head())
-            X = [chunk_df[feat.name].values for feat in sparse_feature_list] + \
-                    [chunk_df[feat.name].values for feat in dense_feature_list]
-            #Y = [chunk_df[target[0]].values, chunk_df[target[1]].values]
-            Y = {"finish":chunk_df[target[0]].values, "like":chunk_df[target[1]].values}
-            yield X, Y
-        fd.close()
-        fd = open(file_name)
-        reader = pd.read_csv(fd, sep='\t', chunksize=batch_size, names=column_names, header=None)
+print_head = True
+def data_generator(file_names, column_names, features, targets, batch_size, epochs=1):
+    global print_head
+    file_names = tf.gfile.Glob(file_names)
+    while epochs:
+        for file_name in file_names:
+            print("read file:{}".format(file_name))
+            fd = open(file_name)
+            reader = pd.read_csv(fd, sep='\t', chunksize=batch_size, names=column_names, header=None)
+            for chunk_df in reader:
+                #print("dtypes:", chunk_df.dtypes)
+                #print("data before modify:", chunk_df['user_city'].head())
+                chunk_df = data_preprocess(chunk_df)
+                #print("data after modify:", df['user_city'].head())
+                X = {feature: chunk_df[feature].astype(str).values for feature in features}
+                Y = {target:chunk_df[target].values for target in targets}
+                if print_head == True:
+                    print("columns:", list(chunk_df.columns))
+                    print(chunk_df.head())
+                    print("X", X)
+                    print_head = False
+                #print("data rows:{}".format(len(chunk_df)))
+                yield X, Y
+            fd.close()
+        epochs -= 1

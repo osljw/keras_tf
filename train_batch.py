@@ -9,9 +9,9 @@ import tensorflow.keras.backend as K
 from tensorflow.keras.utils import multi_gpu_model
 from tensorflow.keras.optimizers import Adagrad
 
-from deepctr import SingleFeat
+from data_input import data_generator
 from deepctr.layers.core import MLP, PredictionLayer, NumericFeatureColumnLayer, EmbeddingFeatureColumnLayer
-from model import xDeepFM_MTL, FeatureInfo, EmbeddingFeatureInfo, NumericFeatureInfo
+from model import xDeepFM_MTL
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
@@ -26,7 +26,7 @@ if sys.argv[1] == 'track1':
 elif sys.argv[1] == 'track2':
     from track2_config import *
 elif sys.argv[1] == 'test':
-    from test_config import *
+    from config.test_config import *
 
 
 loss_weights = [1, 1, ]  # [0.7,0.3]任务权重可以调下试试
@@ -36,101 +36,10 @@ def cal_auc(true, pred):
     auc = metrics.roc_auc_score(true, pred)
     return auc
 
-def duration_min_max(x):
-    return (x-0)/(duration_time_max - 0)
-
-def data_clip(x):
-    return x if x > 0 else 1
-
-def data_preprocess(df):
-    #print("sparse_features", sparse_features)
-    df['duration_time'] = df['duration_time'].apply(duration_min_max)
-    #df[sparse_features] = df[sparse_features].apply(lambda x: x.clip(lower=0))
-    #df[dense_features] = df[dense_features].fillna(0,)
-    df = df.fillna(0)
-    return df
-
-#def data_generator(file_name):
-#    fd = open(file_name)
-#    reader = pd.read_csv(fd, sep='\t', chunksize=batch_size, names=column_names, header=None)
-#    while True:
-#        for chunk_df in reader:
-#            #print("dtypes:", chunk_df.dtypes)
-#            #print("data before modify:", chunk_df['user_city'].head())
-#            chunk_df = data_preprocess(chunk_df)
-#            #print("data after modify:", df['user_city'].head())
-#            X = [chunk_df[feat.name].values for feat in sparse_feature_list] + \
-#                    [chunk_df[feat.name].values for feat in dense_feature_list]
-#            Y = [chunk_df[target[0]].values, chunk_df[target[1]].values]
-#            yield X, Y
-#        fd.close()
-#        fd = open(file_name)
-#        reader = pd.read_csv(fd, sep='\t', chunksize=batch_size, names=column_names, header=None)
-
-features = [
-    "uid",
-    "item_id",
-    "author_id",
-    "item_city", 
-    "channel",
-    "music_id",
-    "words",
-    "duration_time",
-    ]
-embedding_size = 8
-
-print_head = True
-def data_generator(file_name, epochs=1):
-    global print_head
-    while epochs:
-        fd = open(file_name)
-        reader = pd.read_csv(fd, sep='\t', chunksize=batch_size, names=column_names, header=None)
-        for chunk_df in reader:
-            #print("dtypes:", chunk_df.dtypes)
-            #print("data before modify:", chunk_df['user_city'].head())
-            chunk_df = data_preprocess(chunk_df)
-            #print("data after modify:", df['user_city'].head())
-            #X = [chunk_df[feat.name].values for feat in sparse_feature_list] + \
-            #        [chunk_df[feat.name].values for feat in dense_feature_list]
-            X = {feature: chunk_df[feature].astype(str).values for feature in features}
-            Y = {"finish":chunk_df[target[0]].values, "like":chunk_df[target[1]].values}
-            if print_head == True:
-                print("columns:", list(chunk_df.columns))
-                print(chunk_df.head())
-                print("X", X)
-                print_head = False
-            yield X, Y
-        fd.close()
-        epochs -= 1
 
 
 if __name__ == "__main__":
 
-    #test = pd.read_csv(test_file, sep='\t', names=column_names)
-    #test = data_preprocess(test)
-    #test_model_input = [test[feat.name].values for feat in sparse_feature_list] + \
-    #    [test[feat.name].values for feat in dense_feature_list]
-
-
-    input_feature_list = [FeatureInfo(feature, "string", 1) for feature in features]
-    
-    embedding_feature_list = [
-        EmbeddingFeatureInfo('uid', 100000, dimension=embedding_size),
-        EmbeddingFeatureInfo('item_id', 100000, dimension=embedding_size),
-        EmbeddingFeatureInfo('author_id', 100000, dimension=embedding_size),
-        EmbeddingFeatureInfo('item_city', 100000, dimension=embedding_size),
-        EmbeddingFeatureInfo('channel', 100000, dimension=embedding_size),
-        EmbeddingFeatureInfo('music_id', 100000, dimension=embedding_size),
-        EmbeddingFeatureInfo('words', 100000, dimension=embedding_size),
-        EmbeddingFeatureInfo('_X_'.join(['uid', 'item_id']), 100000, dimension=embedding_size),
-        EmbeddingFeatureInfo('_X_'.join(['uid', 'author_id']), 100000, dimension=embedding_size),
-        EmbeddingFeatureInfo('_X_'.join(['uid', 'channel']), 100000, dimension=embedding_size),
-        EmbeddingFeatureInfo('_X_'.join(['uid', 'words']), 100000, dimension=embedding_size),
-    ]
-    
-    numeric_feature_list = [
-        NumericFeatureInfo('duration_time', 1),
-    ]
 
     model = xDeepFM_MTL(input_feature_list,
                         embedding_feature_list,
@@ -182,7 +91,13 @@ if __name__ == "__main__":
     for i in range(epochs):
         print("\n\n========== epochs: {} ============".format(i))
         print("train:")
-        train_generator = data_generator(train_file, epochs=1)
+        #train_generator = data_generator(train_file, epochs=1)
+        train_generator = data_generator(train_file, 
+                                         column_names=column_names,
+                                         features=features,
+                                         targets=targets,
+                                         batch_size=batch_size,
+                                         epochs=1)
         history = model.fit_generator(train_generator,
                 steps_per_epoch=train_steps_per_epoch,
                 epochs=1,
@@ -191,7 +106,12 @@ if __name__ == "__main__":
         #pred_ans = model.predict(test_model_input, batch_size=2**14)
         #pred_ans = model.evaluate_generator(eval_generator, steps=3)
         #pred_ans = model.predict_generator(test_generator, steps=3)
-        test_generator = data_generator(test_file, epochs=1)
+        test_generator = data_generator(test_file,
+                                        column_names=column_names,
+                                        features=features,
+                                        targets=targets,
+                                        batch_size=batch_size,
+                                        epochs=1)
         test = []
         for X, Y in test_generator:
             pred = model.predict(X)
