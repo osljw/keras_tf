@@ -4,15 +4,17 @@ from model import FeatureInfo, EmbeddingFeatureInfo, NumericFeatureInfo
 
 ngpus = len(os.environ['CUDA_VISIBLE_DEVICES'].split(','))
 
-ONLINE_FLAG = False
+ONLINE_FLAG = True
 if ONLINE_FLAG:
     train_file = 'input/train.txt'
+    eval_file = 'input/test.txt'
     test_file = 'input/test.txt'
     train_data_len = 10000
-    epochs = 2
+    epochs = 1
 else:
     #train_file = 'input/train.txt'
     train_file = 'input/train/part-*'
+    eval_file = 'input/test.txt'
     test_file = 'input/test.txt'
     train_data_len = 10000
     epochs = 5

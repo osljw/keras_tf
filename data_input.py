@@ -17,7 +17,7 @@ import tensorflow.keras as keras
 
 
 # data preprocess
-duration_time_max = 150
+duration_time_max = 700
 
 def duration_min_max(x):
     return (x-0)/(duration_time_max - 0)
@@ -30,7 +30,7 @@ def data_preprocess(df):
     df = df.fillna(0)
     return df
 
-print_head = True
+print_head = False
 def data_generator(file_names, column_names, features, targets, batch_size, epochs=1):
     global print_head
     file_names = tf.gfile.Glob(file_names)

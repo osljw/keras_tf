@@ -227,12 +227,12 @@ class NumericFeatureColumnLayer(Layer):
         return output
 
     def compute_output_shape(self, input_shape):
-        return (None, 1)
+        return (None, self.size)
 
-    def get_config(self,):
-        config = {'activation': self.activation, 'use_bias': self.use_bias}
-        base_config = super(FeatureColumnLayer, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+    #def get_config(self,):
+    #    config = {'activation': self.activation, 'use_bias': self.use_bias}
+    #    base_config = super(FeatureColumnLayer, self).get_config()
+    #    return dict(list(base_config.items()) + list(config.items()))
 
 class EmbeddingFeatureColumnLayer(Layer):
     """
@@ -242,34 +242,36 @@ class EmbeddingFeatureColumnLayer(Layer):
          - **use_bias**: bool.Whether add bias term or not.
     """
 
-    def __init__(self, feature_name, feature_column, dimension, features, **kwargs):
+    def __init__(self, feature_name, feature_column, dimension, features, l2_reg, **kwargs):
         self.fc = feature_column
-        self.embed = tf.feature_column.embedding_column(self.fc, dimension=dimension)
-        self.builded = False
-        #self.features = {}
-        #tensor = tf.reshape(features[feature_name], [-1])
-        #tensor =  tf.string_split(tensor, ',')
-        #sp_values = tf.string_to_number(tensor.values, tf.int32)
-        #self.features[feature_name] = tf.SparseTensor(tensor.indices, sp_values, tensor.dense_shape)
+        self.embed = tf.feature_column.embedding_column(self.fc, dimension=dimension, max_norm=0.001)
         self.features = features
+        self.l2_reg = l2_reg
         self.output_tensor = None
         super(EmbeddingFeatureColumnLayer, self).__init__(**kwargs)
 
     def build(self, input_shape):
         # Be sure to call this somewhere!
-        self.output_tensor = tf.feature_column.input_layer(self.features, self.embed)
+        cols_to_vars = {}
+        self.output_tensor = tf.feature_column.input_layer(self.features, self.embed, cols_to_vars=cols_to_vars)
+        weight = cols_to_vars[self.embed][0]
+        #regularizer = l2(self.l2_reg)
+        #with K.name_scope('weight_regularizer'):
+        #    self.add_loss(regularizer(weight))
+        #    #self.add_loss(regularizer(self.output_tensor))
+        self._trainable_weights.append(weight)
         super(EmbeddingFeatureColumnLayer, self).build(input_shape)
 
     def call(self, inputs, **kwargs):
         return self.output_tensor
 
     def compute_output_shape(self, input_shape):
-        return (None, 1)
+        return (None, self.dimension)
 
-    def get_config(self,):
-        config = {'activation': self.activation, 'use_bias': self.use_bias}
-        base_config = super(FeatureColumnLayer, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+    #def get_config(self,):
+    #    config = {'activation': self.activation, 'use_bias': self.use_bias}
+    #    base_config = super(FeatureColumnLayer, self).get_config()
+    #    return dict(list(base_config.items()) + list(config.items()))
 
 
 class PredictionLayer(Layer):
